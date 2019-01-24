@@ -1,12 +1,29 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <router-link to="/">App</router-link> |
+      <router-link to="/readme">READ.ME</router-link>
     </div>
-    <router-view/>
+    <router-view :myClub="this.myClub"/>
+
   </div>
 </template>
+
+<script lang="ts">
+  import { Component, Vue } from 'vue-property-decorator';
+  import {Club, Bar, Drink, Inventory, InventoryItem} from '@/classes/BarClasses.ts'; // @ is an alias to /src
+
+  @Component
+  export default class App extends Vue {
+
+    private myClub: Club;
+
+    constructor() {
+      super();
+      this.myClub = new Club('Palace', [], new Inventory([]) );
+    }
+  }
+</script>
 
 <style>
 #app {
