@@ -40,7 +40,6 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import {Drink, Inventory, InventoryItem} from '@/classes/BarClasses.ts'; // @ is an alias to /src
 
 @Component
 export default class DrinkList extends Vue {

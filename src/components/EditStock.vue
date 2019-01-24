@@ -1,6 +1,6 @@
 <template>
   <div class="editStock">
-    <el-button v-if="this.inventory.getItems().length > 0" type="danger" @click="editFormVisible = true; setList();">
+    <el-button v-if="this.inventory.items.length > 0" type="danger" @click="editFormVisible = true; setList();">
       <span>Edit Stock</span>
     </el-button>
 
@@ -40,7 +40,10 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import {Drink, Inventory, InventoryItem} from '@/classes/BarClasses.ts'; // @ is an alias to /src
+
+import Drink from '@/classes/Drink.ts'; // @ is an alias to /src
+import Inventory from '@/classes/Inventory.ts'; // @ is an alias to /src
+import InventoryItem from '@/classes/InventoryItem.ts'; // @ is an alias to /src
 
 @Component
 export default class EditStock extends Vue {
@@ -72,19 +75,19 @@ export default class EditStock extends Vue {
     this.requiredStock = [];
     this.drinkNames = [];
 
-    for (const item of this.inventory.getItems()) {
-      this.drinkNames.push(item.getDrinkType().getName());
-      this.currentStock.push(item.getCurrentStock());
-      this.requiredStock.push(item.getRequiredStock());
+    for (const item of this.inventory.items) {
+      this.drinkNames.push(item.drinkType.name);
+      this.currentStock.push(item.currentStock);
+      this.requiredStock.push(item.requiredStock);
     }
   }
 
   // takes form numbers and updates the InventoryItem objects
   public editDrinks(): void {
     let i = 0;
-    for (const item of this.inventory.getItems()) {
-      item.setCurrentStock(this.currentStock[i]);
-      item.setRequiredStock(this.requiredStock[i]);
+    for (const item of this.inventory.items) {
+      item.currentStock = this.currentStock[i];
+      item.requiredStock = this.requiredStock[i];
       i++;
     }
   }

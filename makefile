@@ -4,7 +4,6 @@ all: install build dev
 
 install: ;@echo "Installing ${PROJECT}....."; \
 	npm install \
-	npm install -g @vue/cli
 
 build: ;@echo "Building ${PROJECT}....."; \
 	npm run build

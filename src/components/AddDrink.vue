@@ -57,7 +57,10 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import {Drink, Inventory, InventoryItem} from '@/classes/BarClasses.ts'; // @ is an alias to /src
+
+import Drink from '@/classes/Drink.ts'; // @ is an alias to /src
+import Inventory from '@/classes/Inventory.ts'; // @ is an alias to /src
+import InventoryItem from '@/classes/InventoryItem.ts'; // @ is an alias to /src
 
 @Component
 export default class AddDrink extends Vue {
