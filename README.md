@@ -51,11 +51,11 @@
 # Finding The Code
 ===================
 
-  * The most important file containing all the classes is  "src/classes/BarClasses.ts"
+  * The most important files are in the "src/classes"
   * The main GUI functionality(GUI and Event Driven Programming) is within   "src/views/Home.vue"
     This types of files are a combination of both html and typescript for reactive rendering.
-    The Components Folder holds two other files ta are
-  * The GUI only has limited functionality as it isn't intended to be unbreakable
+    The "src/components" folder holds two other files that have have rendering involved.
+  * The GUI only has limited functionality as it is not in.
 
 =========================
 # Assignment Specs
@@ -98,5 +98,8 @@
     This can be viewed in the BarClasses.ts file. Ex: a Club has a Bar
   * Abstraction is used in functions such as stockBar() in (Bar.ts:39).
     The UI only needs to call one function that holds a lot of functionality. The function is abstract in the sense that you cannot see what it does.
-  * Instance Variables are used within Home.vue around line 227 when preloading values
+  * Instance Variables are used within Home.vue around line 224 when preloading values
   * Class Invariants are not used as it did not fit into the projects scope
+
+  * The Vue files are used as the View with the embedded typescript being the Controller for the application.
+  

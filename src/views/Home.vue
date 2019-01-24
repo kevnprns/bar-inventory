@@ -3,6 +3,12 @@
     <h1>Welcome to my Nightclub: {{this.myClub.name}}</h1>
     <el-button v-if="preloadVisible" type="info" @click="preloadValues">Add Preload Values</el-button>
 
+    <div style="position: absolute; margin-top: 10px; margin-left: 20px; top: 0; left: 0;">
+      Tooltips:
+      <el-switch v-model="tooltipDisabled" inactive-color="#13ce66" active-color="#ff4949">
+      </el-switch>
+    </div>
+
     <!-- Creating a Bar Form -->
     <el-dialog title="Create Bar"  :visible.sync="barFormVisible">
       <el-form @keyup.enter="this.createBar()">
@@ -188,7 +194,6 @@ import InventoryItem from '@/classes/InventoryItem.ts'; // @ is an alias to /src
 })
 export default class Home extends Vue {
 
-  // @Prop() private msg!: string;
   @Prop() private myClub !: Club;
 
   private formLabelWidth: string;

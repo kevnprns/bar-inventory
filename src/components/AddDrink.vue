@@ -90,9 +90,6 @@ export default class AddDrink extends Vue {
 
   // takes form inputs and creates a drink
   public addDrink(): void {
-    // console.log(this.newDrinkName);
-    // console.log(this.newDrinkDescription);
-    // console.log(this.newDrinkQuantity);
     let newDrink: Drink;
 
     if (!this.addingToBar) {
