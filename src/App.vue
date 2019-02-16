@@ -4,7 +4,13 @@
       <router-link to="/">App</router-link> |
       <router-link to="/readme">READ.ME</router-link>
     </div>
-    <router-view :myClub="this.myClub"/>
+    {{this.dataLoaded}}
+    <router-view v-if="dataLoaded" :myClub="this.myClub"/>
+    <!-- <h1>{{this.myClub}}</h1> -->
+
+    <!-- <bar-loader class="custom-class" :color="#bada55" :loading="!dataLoaded" :size="150" :sizeUnit="px"></bar-loader> -->
+    <div uk-spinner></div>
+
 
   </div>
 </template>
@@ -16,15 +22,183 @@
   import Drink from '@/classes/Drink.ts'; // @ is an alias to /src
   import Inventory from '@/classes/Inventory.ts'; // @ is an alias to /src
   import InventoryItem from '@/classes/InventoryItem.ts'; // @ is an alias to /src
+  import axios from 'axios';
+  // import { BarLoader } from '@saeris/vue-spinners';
 
-  @Component
+  interface LocationJSON {
+    locationID: number;
+    name: string;
+    overstock: number;
+  }
+
+  interface DrinkJSON {
+    drinkID: number;
+    name: string;
+    description: string;
+    quantity: number;
+  }
+
+  interface InventoryJSON {
+    inventoryID: number;
+    drinkID: number;
+    locationID: number;
+    current: number;
+    required: number;
+  }
+
+  @Component({
+    components: {
+      // BarLoader
+    },
+  })
   export default class App extends Vue {
 
+    public baseUrl: string = 'http://24.138.161.30:5000/';
     private myClub: Club;
+    private dataLoaded: boolean;
 
     constructor() {
       super();
-      this.myClub = new Club('Palace', [], new Inventory([]) );
+
+      let endPoint = 'locations';
+      const myBase = this.baseUrl;
+      this.dataLoaded = false;
+
+
+      this.myClub = new Club(1, 'Loading...', [], new Inventory([]) );
+
+      const myObject = this;
+
+      axios.get(myBase + endPoint).then((response) => {
+        console.log('Recieved Locations:');
+        myObject.loadLocations(response.data);
+
+        endPoint = 'drinks';
+
+        axios.get(myBase + endPoint).then((response) => {
+          console.log('Recieved Drinks:');
+          console.log(response.data);
+
+          const drinks: DrinkJSON[] = response.data;
+
+          endPoint = 'inventory';
+
+          axios.get(myBase + endPoint).then((response) => {
+            console.log('Recieved Inventory:');
+            console.log(response.data);
+
+            myObject.loadInventory(drinks, response.data);
+
+          }).catch((e) => {
+              console.log('request failed: Inventory');
+              console.log(e);
+          });
+        }).catch((e) => {
+            console.log('request failed: Drinks');
+            console.log(e);
+        });
+      }).catch((e) => {
+          console.log('request failed: Locations');
+          console.log(e);
+      });
+
+
+
+      // const payload = {name: locationID, drinkID: drinkType.drinkID, current: currentStock, required: requiredStock}
+
+    }
+
+    public loadLocations(myLocations: LocationJSON[]): void {
+      const bars: LocationJSON[] = [];
+      let club: LocationJSON = {locationID: 0, name: '', overstock: 1};
+
+      console.log(myLocations);
+
+      for (const location of myLocations) {
+        if (location.overstock === 1) {
+          club = location;
+        } else {
+          bars.push(location);
+        }
+      }
+
+      if (club.locationID === 0) {
+        console.log('No Club found');
+        // create a Club
+      }
+
+      this.myClub = new Club(club.locationID, club.name, [], new Inventory([]) );
+
+      for (const bar of bars) {
+        const newBar = new Bar(bar.locationID, bar.name, new Inventory([]), this.myClub.overstock);
+        this.myClub.addBar(newBar);
+      }
+    }
+
+
+    public loadInventory(drinks: DrinkJSON[] , inventoryItems: InventoryJSON[]): void {
+      let location = this.myClub.locationID;
+      const bars = this.myClub.bars;
+
+      for (const item of inventoryItems) {
+        if (item.locationID === location) {
+          const newDrink = this.findDrink(drinks, item.drinkID);
+          if (newDrink === null) {
+            continue;
+          }
+
+          const myDrink = new Drink(newDrink.drinkID, newDrink.name, newDrink.description, newDrink.quantity);
+          const newItem = new InventoryItem(item.inventoryID, item.locationID, myDrink, item.current, item.required);
+          console.log(newItem);
+
+          this.myClub.overstock.addDrink(newItem);
+        }
+      }
+
+      const drinkList = this.myClub.overstock.getDrinkList();
+
+      for (const bar of bars) {
+        location = bar.locationID;
+
+        for (const item of inventoryItems) {
+          if (item.locationID === location) {
+
+            const myDrink = this.getDrinkObject(drinkList, item.drinkID);
+            if (myDrink === null) {
+              continue;
+            }
+
+            const newItem = new InventoryItem(item.inventoryID, item.locationID, myDrink, item.current, item.required);
+            console.log(newItem);
+
+            bar.inventory.addDrink(newItem);
+          }
+        }
+        console.log(bar);
+      }
+
+      this.dataLoaded = true;
+
+    }
+
+    public findDrink(drinks: DrinkJSON[], searchID: number): DrinkJSON | null {
+      for (const drink of drinks) {
+        if (drink.drinkID === searchID) {
+          return drink;
+        }
+      }
+
+      return null;
+    }
+
+    public getDrinkObject(drinkList: Drink[], searchID: number): Drink | null {
+      for (const drink of drinkList) {
+        if (drink.drinkID === searchID) {
+          return drink;
+        }
+      }
+
+      return null;
     }
   }
 </script>

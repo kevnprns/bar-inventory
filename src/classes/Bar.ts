@@ -1,17 +1,26 @@
 import Inventory from '@/classes/Inventory.ts';
+import axios from 'axios';
 
 export default class Bar {
+  private _locationID: number;
   private _name: string;
   private _inventory: Inventory;
   private _overstock: Inventory;
 
-  constructor(newName: string, newInventory: Inventory, newOverstock: Inventory) {
+  constructor(locationID: number, newName: string, newInventory: Inventory, newOverstock: Inventory) {
+    this._locationID = locationID;
     this._name = newName;
     this._inventory = newInventory;
     this._overstock = newOverstock;
   }
 
   // accessors && mutators
+  get locationID(): number {
+    return this._locationID;
+  }
+  set locationID(locationID: number) {
+    this._locationID = locationID;
+  }
   get name(): string {
     return this._name;
   }
@@ -31,6 +40,9 @@ export default class Bar {
     this._overstock = newOverstock;
   }
 
+  public serialize(): string {
+    return JSON.stringify(this);
+  }
 
   // methods
 
@@ -41,7 +53,30 @@ export default class Bar {
 
     const transferableStock = this._overstock.removeStock(requiredStock);
 
-    this._inventory.addStock(transferableStock);
+    alert(JSON.stringify(transferableStock));
+
+    const transferableJson = [];
+
+    for (const item of transferableStock) {
+      transferableJson.push(JSON.parse(item.serialize()));
+      item.locationID = this.locationID;
+    }
+
+    const payload = transferableJson;
+
+    const myObject = this;
+    const base = 'http://24.138.161.30:5000/inventoryRemove';
+
+    axios.post(base, payload).then((response) => {
+      console.log('Updated Remove Items Stock');
+      console.log(response.data);
+      myObject._inventory.addStock(transferableStock);
+
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
+
   }
 
 }

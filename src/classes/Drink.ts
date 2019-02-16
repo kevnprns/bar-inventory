@@ -1,16 +1,24 @@
 export default class Drink {
 
+  private _drinkID: number;
   private _name: string;
   private _description: string;
   private _quantity: number;
 
-  constructor(newName: string, newDescription: string, newQuantity: number) {
+  constructor(drinkID: number, newName: string, newDescription: string, newQuantity: number) {
+    this._drinkID = drinkID;
     this._name = newName;
     this._description = newDescription;
     this._quantity = newQuantity;
   }
 
   // accessors && mutators
+  get drinkID(): number {
+    return this._drinkID;
+  }
+  set drinkID(drinkID: number) {
+    this._drinkID = drinkID;
+  }
   get name(): string {
     return this._name;
   }
@@ -29,5 +37,10 @@ export default class Drink {
   set quantity(newQuantity: number) {
     this._quantity = newQuantity;
   }
+
+  public serialize(): string {
+    return JSON.stringify(this);
+  }
+
 
 }

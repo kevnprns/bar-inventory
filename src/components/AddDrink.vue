@@ -49,7 +49,7 @@
       </el-row>
         <span slot="footer" class="dialog-footer">
           <el-button @click="drinkFormVisible = false">Cancel</el-button>
-          <el-button type="primary" @click="drinkFormVisible = false; addDrink()">Confirm</el-button>
+          <el-button type="primary" @click="drinkFormVisible = false; submitDrink()">Confirm</el-button>
         </span>
     </el-dialog>
   </div>
@@ -61,12 +61,14 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import Drink from '@/classes/Drink.ts'; // @ is an alias to /src
 import Inventory from '@/classes/Inventory.ts'; // @ is an alias to /src
 import InventoryItem from '@/classes/InventoryItem.ts'; // @ is an alias to /src
+import axios from 'axios';
 
 @Component
 export default class AddDrink extends Vue {
   @Prop() private inventory!: Inventory;
   @Prop() private drinkList!: Drink[];
   @Prop() private addingToBar!: boolean;
+  @Prop() private locationID!: number;
   private formLabelWidth: string;
   private newDrinkName: string;
   private newDrinkDescription: string;
@@ -89,16 +91,71 @@ export default class AddDrink extends Vue {
   }
 
   // takes form inputs and creates a drink
-  public addDrink(): void {
+  public submitDrink(): void {
     let newDrink: Drink;
 
     if (!this.addingToBar) {
-      newDrink = new Drink(this.newDrinkName, this.newDrinkDescription, this.newDrinkQuantity);
+      const payload = {
+        name: this.newDrinkName,
+        description: this.newDrinkDescription,
+        quantity: this.newDrinkQuantity.toString(),
+      };
+
+      // alert(payload);
+      const vueObject = this;
+
+      axios.post('http://24.138.161.30:5000/drinks', payload).then((response) => {
+        console.log(response.data);
+        const myData = response.data[0];
+        alert(JSON.stringify(myData));
+
+        newDrink = new Drink(myData.drinkID, myData.name, myData.description, myData.quantity);
+
+        vueObject.addDrink(newDrink);
+
+      }).catch((e) => {
+          console.log('request failed');
+          console.log(e);
+      });
+
     } else {
       newDrink = this.drinkList[this.selectedDrink];
+      this.addDrink(newDrink);
     }
-    this.inventory.addDrink(newDrink, this.newCurrentStock, this.newRequiredStock);
-    this.resetValues();
+
+
+  }
+
+  public addDrink(newDrink: Drink): void {
+    // HACK make axios call
+    // this.inventory.addDrink(this.locationID, newDrink, this.newCurrentStock, this.newRequiredStock);
+
+    const payload = {
+                      drinkID: newDrink.drinkID,
+                      locationID: this.locationID,
+                      current: this.newCurrentStock,
+                      required: this.newRequiredStock,
+                    };
+
+    alert(JSON.stringify(payload));
+
+    const vueObject = this;
+
+    axios.post('http://24.138.161.30:5000/inventory', payload).then((response) => {
+      console.log(response.data);
+      const myData = response.data[0];
+
+      const newInventoryItem =
+      new InventoryItem(myData.inventoryID, myData.locationID, newDrink, myData.current, myData.required);
+
+      vueObject.inventory.addDrink(newInventoryItem);
+
+      vueObject.resetValues();
+
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
   }
 
   public resetValues(): void {

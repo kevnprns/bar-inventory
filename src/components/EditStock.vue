@@ -86,8 +86,9 @@ export default class EditStock extends Vue {
   public editDrinks(): void {
     let i = 0;
     for (const item of this.inventory.items) {
-      item.currentStock = this.currentStock[i];
-      item.requiredStock = this.requiredStock[i];
+      item.updateStock(this.currentStock[i], this.requiredStock[i]);
+      // item.currentStock = this.currentStock[i];
+      // item.requiredStock = this.requiredStock[i];
       i++;
     }
   }

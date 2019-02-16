@@ -22,12 +22,11 @@
 # User Stories
 =========================
 
-  - I can create a Bar.
-  - I can create a Drink in the Club inventory.
-  - I can add a Drink to a Bar inventory.
-  - I can set the current and the required stock for each Drink in the inventory.
-  - I can edit the current bar stock.
-  - I can restock the Bar inventory by taking from the Club inventory.
+  - User data is stored in between sessions to be able to leave off on where the user was.
+  - User data is accessible from many computer devices as it pulls its data from a database
+  - Admin can export a list of items so an employee can stock those Items.
+  - The portability of every object in the system allows scalability to other users on a partnering application(employees, stockers, barManagers, etc...)
+  - User can edit the current and required bar stock and have it persist in the data.
 
 =====================
 # Running the Project
@@ -58,48 +57,55 @@
   * The GUI only has limited functionality as it is not in.
 
 =========================
+# Limitations
+=========================
+
+  * The application runs well with the database but it currently has a bug that I have not been able to solve with cors that kills the python code for the api.
+  * I will be trying to keep making sure its up and running but if you cant see the data on the screen it means that it must be off.
+
+=========================
 # Assignment Specs
 =========================
 
-  * I did not have any use in my project's scope for method overloading.
-    Method overloading is different in typescript than most OO languages.
-    Proof of concept:
+  *How is the general OO design of the program?*
 
-        public myFunction(myString: string): string;
-        public myFunction(myNumber: number): number;
+    The classes are implemented with getters and setters properly and all variables are encapsulated.
+    Methods are designed to do one thing and one thing only.
+    I did not include any overloaded methods in my project as it did not fit the scope
+    All duplicate code has been eliminated
 
-        public myFunction(stringOrNumber: string | number): string | number {
-          if(typeof stringOrArray === "string"){
-            //do something with the string
-            return stringOrNumber
-          } else {
-            //do something with the number
-            return stringOrNumber
-          }
-        }
+  *Is persistence implemented effectively within the program?*
 
-  * I did not have any use in my project's scope for class variables.
-    Proof of concept:
+    Persistence is implemented through a homebased mysqldatabase. It is running on a flask program in python.
+    The file is included in the server/routerFinal.py
 
-        Class Person{
-          static instances: number = 0;
-        }
+    The server is running at
+    http://24.138.161.30:5000/
 
-  * Constructors are in every class
-  * Encapsulation, accessors and mutators is demonstrated through all the private instance variables. All private variables are denoted by using an underscore in front of the variable.
-    An example of the use of private variables can be found in 'classes/Club.ts'
+    You can paste this into your browser to use the api yourself
+    http://24.138.161.30:5000/locations
+    http://24.138.161.30:5000/drinks
+    http://24.138.161.30:5000/inventory
 
-    Typescript accessor and mutators are used in the following way:
 
-        myName = myClub.name; // use of accessor
-        myClub.name = 'Rebel'; // use of mutator
+  *Is persistence used to realize a user story that could not be accomplished without persistence?*
 
-  * To demonstrate polymorphism I used composition over inheritance as Inheritance couldn't quite fit into the idea
-    This can be viewed in the BarClasses.ts file. Ex: a Club has a Bar
-  * Abstraction is used in functions such as stockBar() in (Bar.ts:39).
-    The UI only needs to call one function that holds a lot of functionality. The function is abstract in the sense that you cannot see what it does.
-  * Instance Variables are used within Home.vue around line 224 when preloading values
-  * Class Invariants are not used as it did not fit into the projects scope
+    No The user stories could not have been accomplished without persistence
+
+  *Does the user story contribute to the overall application and make sense within the program as a whole?*
+
+    The user stories are small steps to scaling the application for different users.
+
+  *Is the program able to save and load persistent data?*
+
+    All data is saved runtime to the database on the server with API calls using axios.
+    Example: App.vue: line 72
+
+  *Is portability implemented effectively within the program?*
+
+    Portability is included in the restock bar buttons when it exports the stocking information for that bar.
+    This is good to be portable as it can be sent to other users in the program for example a employee who does stocking during the day could recieve this list on his phone.
+    The program prints the portable JSON object out to the screen in an alert.
+
 
   * The Vue files are used as the View with the embedded typescript being the Controller for the application.
-  

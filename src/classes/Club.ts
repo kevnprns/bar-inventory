@@ -2,17 +2,25 @@ import Bar from '@/classes/Bar.ts';
 import Inventory from '@/classes/Inventory.ts';
 
 export default class Club {
+  private _locationID: number;
   private _name: string;
   private _bars: Bar[];
   private _overstock: Inventory;
 
-  constructor(newName: string, newBars: Bar[], newOverstock: Inventory) {
+  constructor(locationID: number, newName: string, newBars: Bar[], newOverstock: Inventory) {
+    this._locationID = locationID;
     this._name = newName;
     this._bars = newBars;
     this._overstock = newOverstock;
   }
 
   // accessors && mutators
+  get locationID(): number {
+    return this._locationID;
+  }
+  set locationID(locationID: number) {
+    this._locationID = locationID;
+  }
   get name(): string {
     return this._name;
   }
@@ -32,7 +40,9 @@ export default class Club {
     this._overstock = newOverstock;
   }
 
-
+  public serialize(): string {
+    return JSON.stringify(this);
+  }
 
 
   /* addBar

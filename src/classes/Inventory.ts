@@ -1,5 +1,6 @@
 import InventoryItem from '@/classes/InventoryItem.ts';
 import Drink from '@/classes/Drink.ts';
+import axios from 'axios';
 
 export default class Inventory {
   private _items: InventoryItem[];
@@ -16,14 +17,17 @@ export default class Inventory {
     this._items = newItems;
   }
 
+  public serialize(): string {
+    return JSON.stringify(this);
+  }
+
   /* addDrink
     Description: Takes a drink and stock values and creates a InventoryItem to be added.
     In: Drink, number, number
     Out: void
   */
-  public addDrink(drinkType: Drink, currentStock: number, requiredStock: number): void {
+  public addDrink(newItem: InventoryItem): void {
     // does not check if Drink already exists
-    const newItem = new InventoryItem(drinkType, currentStock, requiredStock);
     this._items.push(newItem);
   }
 
@@ -40,7 +44,7 @@ export default class Inventory {
     for (const item of this._items) {
       const diff = item.requiredStock - item.currentStock;
       if (diff > 0) {
-        requiredStock.push(new InventoryItem(item.drinkType, 0, diff));
+        requiredStock.push(new InventoryItem(0, 0, item.drinkType, 0, diff));
       }
     }
     return requiredStock;
@@ -74,18 +78,34 @@ export default class Inventory {
     for (const item of requiredStock) {
       const drinkType = item.drinkType;
       const inventoryItem = this.findInventoryItem(drinkType);
+      let newCurrentStock = 0;
 
       const diff = inventoryItem.currentStock - item.requiredStock;
       if (diff < 0) {
         // cannot fill stock fully
-        transferableStock.push(new InventoryItem(drinkType, (item.requiredStock + diff), 0));
-        inventoryItem.currentStock = 0;
+        transferableStock.push(new InventoryItem(
+          inventoryItem.inventoryID,
+          inventoryItem.locationID,
+          drinkType,
+          (item.requiredStock + diff),
+          0,
+        ));
+        newCurrentStock = 0;
       } else {
         // can fill stock without a problem.
-        transferableStock.push(new InventoryItem(drinkType, item.requiredStock, 0));
-        inventoryItem.currentStock = diff;
+        transferableStock.push(new InventoryItem(
+          inventoryItem.inventoryID,
+          inventoryItem.locationID,
+          drinkType,
+          item.requiredStock,
+          0,
+        ));
+        newCurrentStock = diff;
       }
+
+      console.log('Took Item from Overstock');
     }
+
     return transferableStock;
   }
 
@@ -98,12 +118,37 @@ export default class Inventory {
   */
   public addStock(transferableStock: InventoryItem[]): void {
 
-    for (const item of transferableStock) {
-      const drinkType = item.drinkType;
-      const inventoryItem = this.findInventoryItem(drinkType);
+    const newJson = JSON.stringify(transferableStock);
 
-      inventoryItem.stockItem(item.currentStock);
+    const transferableJson = [];
+
+    for (const item of transferableStock) {
+      transferableJson.push(JSON.parse(item.serialize()));
     }
+
+    const payload = transferableJson;
+    alert('Adding inventory to bar');
+    alert(JSON.stringify(transferableJson));
+
+    const myObject = this;
+    const base = 'http://24.138.161.30:5000/inventoryAdd';
+
+    axios.post(base, payload).then((response) => {
+      console.log('Updated Add Items Stock');
+      console.log(response.data);
+
+      for (const item of transferableStock) {
+        const drinkType = item.drinkType;
+        const inventoryItem = myObject.findInventoryItem(drinkType);
+
+        inventoryItem.stockItem(item.currentStock);
+      }
+
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
+
   }
 
   /* resetStock
@@ -113,6 +158,7 @@ export default class Inventory {
     Out: void
   */
   public resetStock(): void {
+
     for (const item of this._items) {
       item.topUp();
     }
@@ -131,6 +177,8 @@ export default class Inventory {
         return item;
       }
     }
-    return new InventoryItem(searchDrink, 0, 0);
+    return new InventoryItem(0, 0, searchDrink, 0, 0);
   }
+
+
 }

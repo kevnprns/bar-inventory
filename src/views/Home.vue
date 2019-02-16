@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <h1>Welcome to my Nightclub: {{this.myClub.name}}</h1>
-    <el-button v-if="preloadVisible" type="info" @click="preloadValues">Add Preload Values</el-button>
 
     <div style="position: absolute; margin-top: 10px; margin-left: 20px; top: 0; left: 0;">
       Tooltips:
@@ -29,7 +28,7 @@
         <div style="background-color: #8ac7db;">
           <h2>Backroom Stock:</h2>
           <el-row :gutter="20" type="flex" justify="center">
-              <AddDrink :inventory="this.myClub.overstock" :overstock="[]" :addingToBar="false"></AddDrink>
+              <AddDrink :inventory="this.myClub.overstock" :overstock="[]" :locationID="this.myClub.locationID" :addingToBar="false"></AddDrink>
               <EditStock :inventory="this.myClub.overstock" :inventoryOwnerName="this.myClub.name"></EditStock>
               <el-button type="warning" @click="goShopping"  v-if="this.myClub.overstock.calculateStock().length > 0">
                 <span>Go Shopping</span>
@@ -85,12 +84,15 @@
       </el-col>
     </el-row>
     <br>
+
     <h1>My Bars:</h1>
     <el-button type="primary" @click="barFormVisible = true">Add New Bar</el-button>
     <br>
     <br>
+
+    <!-- BARS SECTION -->
     <el-row :gutter="20">
-      <el-col :span="6" v-for="bar in this.myClub.bars" :key="bar.name">
+      <el-col style="margin-bottom: 20px;" :span="8" v-for="bar in this.myClub.bars" :key="bar.name">
         <div style="background-color: lightblue;" class="grid-content bg-purple">
           <el-row type="flex" class="row-bg" justify="space-between">
             <el-col :span="12">
@@ -102,7 +104,7 @@
           <el-row type="flex" class="row-bg" justify="space-between">
             <el-col :span="8">
               <el-tooltip :disabled="tooltipDisabled" class="item" effect="dark" content="Click Button to Add a drink to the bar" placement="top">
-                <AddDrink :inventory="bar.inventory" :drinkList="bar.overstock.getDrinkList()" :addingToBar="true"></AddDrink>
+                <AddDrink :inventory="bar.inventory" :drinkList="bar.overstock.getDrinkList()" :locationID="bar.locationID" :addingToBar="true"></AddDrink>
               </el-tooltip>
             </el-col>
             <el-col :span="8">
@@ -129,6 +131,7 @@
                     <el-col :span="10">
                       {{inventoryItem.currentStock}}
                       <button type="button" name="button" @click="drink(inventoryItem)">drink</button>
+
                     </el-col>
                   </div>
                   <el-col :span="2"/>
@@ -185,6 +188,7 @@ import Bar from '@/classes/Bar.ts'; // @ is an alias to /src
 import Drink from '@/classes/Drink.ts'; // @ is an alias to /src
 import Inventory from '@/classes/Inventory.ts'; // @ is an alias to /src
 import InventoryItem from '@/classes/InventoryItem.ts'; // @ is an alias to /src
+import axios from 'axios';
 
 @Component({
   components: {
@@ -198,9 +202,6 @@ export default class Home extends Vue {
 
   private formLabelWidth: string;
   private newBarName: string;
-  private preloadedBars: string[];
-  private preloadedDrinks: string[];
-  private preloadedDrinkDescriptions: string[];
   private barFormVisible: boolean;
   private tooltipDisabled: boolean;
   private preloadVisible: boolean;
@@ -210,39 +211,31 @@ export default class Home extends Vue {
 
     this.formLabelWidth = '';
     this.newBarName = '';
-    this.preloadedBars = ['MainRoom', 'LatinBar', 'Saloon'];
-    this.preloadedDrinks =
-    ['Jack Daniels', 'Smirnoff Vodka', 'BullDog Gin', 'Bombay Saphire', 'Bacardi Limon'];
-    this.preloadedDrinkDescriptions =
-    ['Hearty Tenesse Whiskey', 'Cheapest Vodka money can buy', 'Considered one of the best gins',
-    'Very premium Gin', 'Rum that has flavour'];
     this.barFormVisible = false;
     this.tooltipDisabled = false;
     this.preloadVisible = true;
   }
 
-  public preloadValues(): void {
-    this.preloadVisible = false;
-    let i = 0;
-    for (const drink of this.preloadedDrinks) {
-      const newDrink = new Drink(drink, this.preloadedDrinkDescriptions[i], 1);
-      this.myClub.overstock.addDrink(newDrink, 12, 3);
-      i++;
-    }
-
-    const drinkList = this.myClub.overstock.items;
-    i = 0;
-    for (const barName of this.preloadedBars) {
-      const newBar = new Bar(barName, new Inventory([]), this.myClub.overstock);
-      newBar.inventory.addDrink(drinkList[i].drinkType, 1, i);
-      this.myClub.addBar(newBar);
-      i++;
-    }
-  }
-
   public createBar(): void {
-    const newBar = new Bar(this.newBarName, new Inventory([]), this.myClub.overstock);
-    this.myClub.addBar(newBar);
+
+    const payload = {name: this.newBarName, overstock: 0};
+
+    alert(JSON.stringify(payload));
+
+    const vueObject = this;
+
+    axios.post('http://24.138.161.30:5000/locations', payload).then((response) => {
+      console.log(response.data);
+      const myData = response.data[0];
+
+      const newBar = new Bar(myData.locationID, myData.name, new Inventory([]), vueObject.myClub.overstock);
+
+      vueObject.myClub.addBar(newBar);
+
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
   }
 
   public restockBar(myBar: Bar): void {
@@ -254,7 +247,10 @@ export default class Home extends Vue {
   }
 
   public drink(inventoryItem: InventoryItem): void {
+    const myDrink = inventoryItem.drinkType;
     inventoryItem.decrementStock();
+
+    // alert(myDrink.serialize());
   }
 }
 </script>
