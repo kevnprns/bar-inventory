@@ -29,7 +29,7 @@ def startDatabaseConnection():
 
     return mariadb_connection, cursor
 
-@app.route("/drinks/<id>",methods=['POST','GET'])
+@app.route("/drinks/<id>",methods=['PUT','GET','DELETE'])
 def single_drinks(id):
     print("Getting ID")
     print(id)
@@ -38,7 +38,7 @@ def single_drinks(id):
     mariadb_connection, cursor = startDatabaseConnection()
 
     requestType = request.method
-    if requestType == "POST":
+    if requestType == "PUT":
         content = request.json
 
         if content is None:
@@ -60,6 +60,17 @@ def single_drinks(id):
         cursor.execute("select * from Drinks where drinkID=%s", (drinkID,))
 
         return jsonify(cursor.fetchall())
+
+    elif requestType == "DELETE":
+        try:
+            # cursor.execute("UPDATE Drinks SET name=%s, description=%s, quantity=%s WHERE drinkID=%s", (name,description,quantity,drinkID))
+            cursor.execute("DELETE from Drinks where drinkID=%s", (drinkID,))
+            mariadb_connection.commit()
+        except mariadb.Error as error:
+            abort(500,"Error: {}".format(error))
+
+        return ""
+
     else:
 
         cursor.execute("select * from Drinks where drinkID=%s;", (drinkID,))
@@ -100,7 +111,7 @@ def drinks():
         # print()
         return jsonify(cursor.fetchall())
 
-@app.route("/locations/<id>",methods=['POST','GET'])
+@app.route("/locations/<id>",methods=['PUT','GET','DELETE'])
 def single_locations(id):
     print("Getting ID")
     print(id)
@@ -109,7 +120,7 @@ def single_locations(id):
     mariadb_connection, cursor = startDatabaseConnection()
 
     requestType = request.method
-    if requestType == "POST":
+    if requestType == "PUT":
         content = request.json
 
         if content is None:
@@ -129,6 +140,15 @@ def single_locations(id):
         cursor.execute("select * from Locations where locationID=%s", (locationID,))
 
         return jsonify(cursor.fetchall())
+
+    elif requestType == "DELETE":
+        try:
+            cursor.execute("DELETE from Locations where locationID=%s;", (locationID,))
+            mariadb_connection.commit()
+        except mariadb.Error as error:
+            abort(500,"Error: {}".format(error))
+
+        return ""
     else:
 
         cursor.execute("select * from Locations where locationID=%s;", (locationID,))
@@ -168,7 +188,7 @@ def locations():
         # print()
         return jsonify(cursor.fetchall())
 
-@app.route("/inventory/<id>",methods=['POST','GET'])
+@app.route("/inventory/<id>",methods=['PUT','GET','DELETE'])
 def single_inventory(id):
     print("Getting ID")
     print(id)
@@ -177,7 +197,7 @@ def single_inventory(id):
 
     requestType = request.method
 
-    if requestType == "POST":
+    if requestType == "PUT":
         content = request.json
 
         if content is None:
@@ -199,6 +219,14 @@ def single_inventory(id):
         cursor.execute("select * from Inventory where inventoryID=%s", (id,))
 
         return jsonify(cursor.fetchall())
+    elif requestType == "DELETE":
+        try:
+            cursor.execute("DELETE from Inventory where inventoryID=%s;", (id,))
+            mariadb_connection.commit()
+        except mariadb.Error as error:
+            abort(500,"Error: {}".format(error))
+
+        return ""
     else:
 
         cursor.execute("select * from Inventory where inventoryID=%s;", (id,))
@@ -241,7 +269,7 @@ def inventory():
         # print()
         return jsonify(cursor.fetchall())
 
-@app.route("/inventoryRemove",methods=['POST','GET'])
+@app.route("/inventory/remove",methods=['PUT','GET'])
 def inventoryRemove():
     myLocation = 0
 
@@ -249,7 +277,7 @@ def inventoryRemove():
 
     requestType = request.method
 
-    if requestType == "POST":
+    if requestType == "PUT":
         content = request.json
 
         if content is None:
@@ -279,7 +307,7 @@ def inventoryRemove():
         pass
         # doesnt do anything
 
-@app.route("/inventoryAdd",methods=['POST','GET'])
+@app.route("/inventory/add",methods=['PUT','GET'])
 def inventoryAdd():
     myLocation = 0
 
@@ -287,7 +315,7 @@ def inventoryAdd():
 
     requestType = request.method
 
-    if requestType == "POST":
+    if requestType == "PUT":
         content = request.json
 
         if content is None:

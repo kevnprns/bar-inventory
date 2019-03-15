@@ -83,11 +83,9 @@ export default class InventoryItem {
 
         const myObject = this;
 
-        const base = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+        const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
 
-        axios.post(base, payload).then((response) => {
-          alert('Updated Item Stock');
-          alert(response.data);
+        axios.put(base, payload).then((response) => {
           console.log('Updated Item Stock');
           console.log(response.data);
 
@@ -118,11 +116,9 @@ export default class InventoryItem {
 
       const myObject = this;
 
-      const base = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+      const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
 
-      alert(base);
-
-      axios.post(base, payload).then((response) => {
+      axios.put(base, payload).then((response) => {
         console.log('Topped up item');
         console.log(response.data);
 
@@ -136,6 +132,21 @@ export default class InventoryItem {
     }
   }
 
+  public deleteObject() {
+    const myObject = this;
+
+    const base = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+
+    axios.delete(base).then((response) => {
+      console.log('Deleted inventoryItem #' + myObject.inventoryID.toString());
+      console.log(response.data);
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
+
+  }
+
   /* topUp
     Description: Decrements the currentStock by 1 if it is not already 0
                 Used for the drink button in the UI
@@ -145,7 +156,7 @@ export default class InventoryItem {
   public decrementStock(): void {
     if (this._currentStock !== 0) {
 
-      const payload = {
+      const payload = { // this type does not required to be asserted as it is a dynamic type for the api to read.
         drinkID: this.drinkType.drinkID,
         locationID: this.locationID,
         current: (this.currentStock - 1),
@@ -154,10 +165,10 @@ export default class InventoryItem {
 
       const myObject = this;
 
-      const base = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+      const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
 
 
-      axios.post(base, payload).then((response) => {
+      axios.put(base, payload).then((response) => {
         console.log('Decremented Item');
         console.log(response.data);
 
@@ -169,6 +180,8 @@ export default class InventoryItem {
       });
     }
   }
+
+  
 
 
 }

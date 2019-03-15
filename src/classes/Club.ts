@@ -1,4 +1,5 @@
 import Bar from '@/classes/Bar.ts';
+import Drink from '@/classes/Drink.ts';
 import Inventory from '@/classes/Inventory.ts';
 
 export default class Club {
@@ -51,6 +52,14 @@ export default class Club {
     Out: void
   */
   public addBar(newBar: Bar): void {
-    this._bars.push(newBar);
+    this.bars.push(newBar);
+  }
+
+  public deleteOverstockItem(toDelete: Drink): void{
+    for(const bar of this.bars){
+      bar.inventory.deleteInventoryItem(toDelete);
+    }
+
+    toDelete.deleteObject();
   }
 }

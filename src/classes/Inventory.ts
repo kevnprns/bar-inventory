@@ -39,7 +39,7 @@ export default class Inventory {
         returns empty list if the inventory is fully stocked
   */
   public calculateStock(): InventoryItem[] {
-    const requiredStock = [];
+    const requiredStock: InventoryItem[] = [];
 
     for (const item of this._items) {
       const diff = item.requiredStock - item.currentStock;
@@ -58,7 +58,7 @@ export default class Inventory {
         returns empty list if the inventory has no items in it
   */
   public getDrinkList(): Drink[] {
-    const drinkList = [];
+    const drinkList: Drink[] = [];
 
     for (const item of this._items) {
       drinkList.push(item.drinkType);
@@ -76,11 +76,11 @@ export default class Inventory {
     const transferableStock: InventoryItem[] = [];
 
     for (const item of requiredStock) {
-      const drinkType = item.drinkType;
-      const inventoryItem = this.findInventoryItem(drinkType);
-      let newCurrentStock = 0;
+      const drinkType: Drink = item.drinkType;
+      const inventoryItem: InventoryItem = this.findInventoryItem(drinkType);
+      let newCurrentStock: number = 0;
 
-      const diff = inventoryItem.currentStock - item.requiredStock;
+      const diff: number = inventoryItem.currentStock - item.requiredStock;
       if (diff < 0) {
         // cannot fill stock fully
         transferableStock.push(new InventoryItem(
@@ -118,7 +118,7 @@ export default class Inventory {
   */
   public addStock(transferableStock: InventoryItem[]): void {
 
-    const newJson = JSON.stringify(transferableStock);
+    // const newJson: string = JSON.stringify(transferableStock);
 
     const transferableJson = [];
 
@@ -127,13 +127,11 @@ export default class Inventory {
     }
 
     const payload = transferableJson;
-    alert('Adding inventory to bar');
-    alert(JSON.stringify(transferableJson));
 
     const myObject = this;
-    const base = 'http://24.138.161.30:5000/inventoryAdd';
+    const base = 'http://24.138.161.30:5000/inventory/add';
 
-    axios.post(base, payload).then((response) => {
+    axios.put(base, payload).then((response) => {
       console.log('Updated Add Items Stock');
       console.log(response.data);
 
@@ -158,7 +156,6 @@ export default class Inventory {
     Out: void
   */
   public resetStock(): void {
-
     for (const item of this._items) {
       item.topUp();
     }
@@ -178,6 +175,86 @@ export default class Inventory {
       }
     }
     return new InventoryItem(0, 0, searchDrink, 0, 0);
+  }
+
+  /* addNewDrink
+    Description: creates drink and adds it to the inventory
+
+  */
+
+  public addNewDrink(newDrinkName: string, newDrinkDescription: string, newDrinkQuantity: number, locationID: number, newCurrentStock: number, newRequiredStock: number) {
+    const payload = {
+      name: newDrinkName,
+      description: newDrinkDescription,
+      quantity: newDrinkQuantity.toString(),
+    };
+
+    const myObject = this;
+
+    axios.post('http://24.138.161.30:5000/drinks', payload).then((response) => {
+      console.log(response.data);
+
+      const myData = response.data[0];
+
+      const newDrink = new Drink(myData.drinkID, myData.name, myData.description, myData.quantity);
+      myObject.createInventoryItem(newDrink, locationID, newCurrentStock, newRequiredStock);
+
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
+  }
+
+  public createInventoryItem(newDrink: Drink, locationID: number, newCurrentStock: number, newRequiredStock: number) {
+    const payload = {
+                      drinkID: newDrink.drinkID,
+                      locationID: locationID,
+                      current: newCurrentStock,
+                      required: newRequiredStock,
+                    };
+
+    const myObject = this;
+
+    axios.post('http://24.138.161.30:5000/inventory', payload).then((response) => {
+      console.log(response.data);
+      const myData = response.data[0];
+
+      const newInventoryItem =
+      new InventoryItem(myData.inventoryID, myData.locationID, newDrink, myData.current, myData.required);
+
+      myObject.addDrink(newInventoryItem);
+
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
+  }
+
+  public deleteObject() {
+    for (const item of this._items) {
+      item.deleteObject()
+    }
+  }
+
+  /* deleteInventoryItem
+    Description: Tries to find inventory item within inventory and delete it.
+
+    IN: InventoryItem
+    OUT: void
+  */
+  public deleteInventoryItem(toDelete: Drink): void {
+
+    let index: number = 0
+
+    for (const item of this._items) {
+      if (toDelete === item.drinkType) {
+        item.deleteObject();
+        this.items.splice(index, 1);
+        break;
+      }
+      index += 1;
+    }
+
   }
 
 

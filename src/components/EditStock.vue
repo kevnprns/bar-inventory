@@ -6,7 +6,17 @@
 
     <el-dialog :title="'Edit Inventory for: '+this.inventoryOwnerName" :visible.sync="editFormVisible">
       <el-row>
-        <el-col :span="14">
+        <el-col :span="2">
+          <h4 style="color: white;"> something</h4>
+          <div style="align: middle;">
+          <el-form label-position="right">
+            <el-form-item v-for="(item, itemIndex) in this.inventory.items" label="" :key="item" :label-width="formLabelWidth">
+              <el-button type=""  @click="deleteInventoryItem(item, itemIndex)"><i class="el-icon-delete"></i></el-button>
+            </el-form-item>
+          </el-form>
+          </div>
+        </el-col>
+        <el-col :span="12">
           <el-row>
             <el-col :span="7">
               <h4></h4>
@@ -17,7 +27,8 @@
           </el-row>
           <el-form label-position="right">
             <el-form-item v-for="(item, index) in currentStock" :label="drinkNames[index]" :key="item" label-width="30%">
-              <el-input-number v-model="currentStock[index]" autocomplete="off"></el-input-number>
+              {{index}}
+              <el-input-number v-model="item.count" autocomplete="off"></el-input-number>
             </el-form-item>
           </el-form>
         </el-col>
@@ -25,7 +36,7 @@
           <h4>Minumum Required</h4>
           <el-form label-position="right">
             <el-form-item v-for="(item, index) in requiredStock" label="" :key="item" :label-width="formLabelWidth">
-              <el-input-number v-model="requiredStock[index]" autocomplete="off"></el-input-number>
+              <el-input-number v-model="item.count" autocomplete="off"></el-input-number>
             </el-form-item>
           </el-form>
         </el-col>
@@ -53,8 +64,8 @@ export default class EditStock extends Vue {
 
   private formLabelWidth: string;
   private editFormVisible: boolean;
-  private currentStock: number[];
-  private requiredStock: number[];
+  private currentStock: any[];
+  private requiredStock: any[];
   private drinkNames: string[];
 
   constructor() {
@@ -77,8 +88,8 @@ export default class EditStock extends Vue {
 
     for (const item of this.inventory.items) {
       this.drinkNames.push(item.drinkType.name);
-      this.currentStock.push(item.currentStock);
-      this.requiredStock.push(item.requiredStock);
+      this.currentStock.push( { count: item.currentStock } );
+      this.requiredStock.push( { count: item.requiredStock } );
     }
   }
 
@@ -86,11 +97,22 @@ export default class EditStock extends Vue {
   public editDrinks(): void {
     let i = 0;
     for (const item of this.inventory.items) {
-      item.updateStock(this.currentStock[i], this.requiredStock[i]);
+      item.updateStock(this.currentStock[i].count, this.requiredStock[i].count);
       // item.currentStock = this.currentStock[i];
       // item.requiredStock = this.requiredStock[i];
       i++;
     }
+  }
+
+  public deleteInventoryItem(item: any, itemIndex: any): void{
+
+    item.deleteObject();
+    const deletedItem = this.inventory.items.splice(itemIndex,1)[0];
+    this.setList();
+    console.log("Deleted InventoryItem:");
+    console.log(deletedItem);
+
+    this.$emit('deletedDrink', deletedItem.drinkType);
   }
 
 }

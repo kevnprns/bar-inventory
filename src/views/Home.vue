@@ -29,7 +29,7 @@
           <h2>Backroom Stock:</h2>
           <el-row :gutter="20" type="flex" justify="center">
               <AddDrink :inventory="this.myClub.overstock" :overstock="[]" :locationID="this.myClub.locationID" :addingToBar="false"></AddDrink>
-              <EditStock :inventory="this.myClub.overstock" :inventoryOwnerName="this.myClub.name"></EditStock>
+              <EditStock :inventory="this.myClub.overstock" :inventoryOwnerName="this.myClub.name" v-on:deletedDrink="deleteOverstockItem($event)"></EditStock>
               <el-button type="warning" @click="goShopping"  v-if="this.myClub.overstock.calculateStock().length > 0">
                 <span>Go Shopping</span>
               </el-button>
@@ -92,14 +92,20 @@
 
     <!-- BARS SECTION -->
     <el-row :gutter="20">
-      <el-col style="margin-bottom: 20px;" :span="8" v-for="bar in this.myClub.bars" :key="bar.name">
+      <el-col style="margin-bottom: 20px;" :span="8" v-for="(bar, barIndex) in this.myClub.bars" :key="bar.name">
         <div style="background-color: lightblue;" class="grid-content bg-purple">
           <el-row type="flex" class="row-bg" justify="space-between">
-            <el-col :span="12">
+            <el-col :span="2">
+              <div style="align: middle;">
+                <el-button type="info" @click="deleteBar(bar, barIndex)"><i class="el-icon-delete"></i></el-button>
+              </div>
+            </el-col>
+            <el-col :span="8">
               <h1>{{bar.name}}</h1>
             </el-col>
-            <el-col :span="10">
+            <el-col :span="12">
             </el-col>
+
           </el-row>
           <el-row type="flex" class="row-bg" justify="space-between">
             <el-col :span="8">
@@ -109,7 +115,7 @@
             </el-col>
             <el-col :span="8">
               <el-tooltip :disabled="tooltipDisabled" class="item" effect="dark" content="Changes Current and Required Stock" placement="top">
-                <EditStock :inventory="bar.inventory" :inventoryOwnerName="bar.name"></EditStock>
+                <EditStock :inventory="bar.inventory" :inventoryOwnerName="bar.name" v-on:deletedDrink="displayDeletedDrink($event)"></EditStock>
               </el-tooltip>
             </el-col>
             <el-col :span="8">
@@ -214,13 +220,13 @@ export default class Home extends Vue {
     this.barFormVisible = false;
     this.tooltipDisabled = false;
     this.preloadVisible = true;
+
   }
 
   public createBar(): void {
 
     const payload = {name: this.newBarName, overstock: 0};
 
-    alert(JSON.stringify(payload));
 
     const vueObject = this;
 
@@ -242,15 +248,34 @@ export default class Home extends Vue {
     myBar.stockBar();
   }
 
+
+
   public goShopping(): void {
     this.myClub.overstock.resetStock();
   }
 
+  public deleteBar(myBar: Bar, barIndex: number): void {
+    console.log("DELETING BAR");
+
+    myBar.deleteObject();
+
+    this.myClub.bars.splice(barIndex,1);
+  }
+
+  public displayDeletedDrink(deletedDrink: Drink){
+    console.log("Deleted Stock of Drink:");
+    console.log(deletedDrink)
+  }
+
+  public deleteOverstockItem(toDelete: Drink){
+    this.myClub.deleteOverstockItem(toDelete);
+    this.displayDeletedDrink(toDelete);
+  }
+
   public drink(inventoryItem: InventoryItem): void {
-    const myDrink = inventoryItem.drinkType;
+    // const myDrink = inventoryItem.drinkType;
     inventoryItem.decrementStock();
 
-    // alert(myDrink.serialize());
   }
 }
 </script>

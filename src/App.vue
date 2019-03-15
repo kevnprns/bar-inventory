@@ -2,10 +2,13 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">App</router-link> |
-      <router-link to="/readme">READ.ME</router-link>
+      <router-link to="/readme">READ.ME</router-link> |
+      <router-link to="/soap">SOAP Example</router-link>
     </div>
-    {{this.dataLoaded}}
     <router-view v-if="dataLoaded" :myClub="this.myClub"/>
+    <h3 v-else>
+      View not loaded
+    </h3>
     <!-- <h1>{{this.myClub}}</h1> -->
 
     <!-- <bar-loader class="custom-class" :color="#bada55" :loading="!dataLoaded" :size="150" :sizeUnit="px"></bar-loader> -->
@@ -60,13 +63,13 @@
     constructor() {
       super();
 
-      let endPoint = 'locations';
       const myBase = this.baseUrl;
       this.dataLoaded = false;
 
 
       this.myClub = new Club(1, 'Loading...', [], new Inventory([]) );
 
+      let endPoint = 'locations';
       const myObject = this;
 
       axios.get(myBase + endPoint).then((response) => {

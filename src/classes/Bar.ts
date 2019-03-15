@@ -1,4 +1,5 @@
 import Inventory from '@/classes/Inventory.ts';
+import InventoryItem from '@/classes/InventoryItem.ts';
 import axios from 'axios';
 
 export default class Bar {
@@ -49,11 +50,9 @@ export default class Bar {
   // Stock Bar: gets required stock list,
   //        asks the overstock inventory for all they can give and then adds it to the bars inventory
   public stockBar() {
-    const requiredStock = this._inventory.calculateStock();
+    const requiredStock: InventoryItem[] = this._inventory.calculateStock();
 
-    const transferableStock = this._overstock.removeStock(requiredStock);
-
-    alert(JSON.stringify(transferableStock));
+    const transferableStock: InventoryItem[] = this._overstock.removeStock(requiredStock);
 
     const transferableJson = [];
 
@@ -65,9 +64,9 @@ export default class Bar {
     const payload = transferableJson;
 
     const myObject = this;
-    const base = 'http://24.138.161.30:5000/inventoryRemove';
+    const base = 'http://24.138.161.30:5000/inventory/remove';
 
-    axios.post(base, payload).then((response) => {
+    axios.put(base, payload).then((response) => {
       console.log('Updated Remove Items Stock');
       console.log(response.data);
       myObject._inventory.addStock(transferableStock);
@@ -77,6 +76,21 @@ export default class Bar {
         console.log(e);
     });
 
+  }
+
+  public deleteObject() {
+    this.inventory.deleteObject();
+
+    const myObject = this;
+    const base = 'http://24.138.161.30:5000/locations/' + this.locationID.toString();
+
+    axios.delete(base).then((response) => {
+      console.log('Deleted location #' + this.locationID.toString());
+      console.log(response.data);
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
   }
 
 }

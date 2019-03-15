@@ -95,67 +95,47 @@ export default class AddDrink extends Vue {
     let newDrink: Drink;
 
     if (!this.addingToBar) {
-      const payload = {
-        name: this.newDrinkName,
-        description: this.newDrinkDescription,
-        quantity: this.newDrinkQuantity.toString(),
-      };
-
-      // alert(payload);
-      const vueObject = this;
-
-      axios.post('http://24.138.161.30:5000/drinks', payload).then((response) => {
-        console.log(response.data);
-        const myData = response.data[0];
-        alert(JSON.stringify(myData));
-
-        newDrink = new Drink(myData.drinkID, myData.name, myData.description, myData.quantity);
-
-        vueObject.addDrink(newDrink);
-
-      }).catch((e) => {
-          console.log('request failed');
-          console.log(e);
-      });
+      this.inventory.addNewDrink(this.newDrinkName, this.newDrinkDescription, this.newDrinkQuantity, this.locationID, this.newCurrentStock, this.newRequiredStock);
 
     } else {
       newDrink = this.drinkList[this.selectedDrink];
-      this.addDrink(newDrink);
+      this.inventory.createInventoryItem(newDrink, this.locationID, this.newCurrentStock, this.newRequiredStock);
     }
-
-
+    this.resetValues();
   }
 
   public addDrink(newDrink: Drink): void {
     // HACK make axios call
     // this.inventory.addDrink(this.locationID, newDrink, this.newCurrentStock, this.newRequiredStock);
 
-    const payload = {
-                      drinkID: newDrink.drinkID,
-                      locationID: this.locationID,
-                      current: this.newCurrentStock,
-                      required: this.newRequiredStock,
-                    };
+    // const payload = {
+    //                   drinkID: newDrink.drinkID,
+    //                   locationID: this.locationID,
+    //                   current: this.newCurrentStock,
+    //                   required: this.newRequiredStock,
+    //                 };
+    //
+    // alert(JSON.stringify(payload));
+    //
+    // const vueObject = this;
+    //
+    // axios.post('http://24.138.161.30:5000/inventory', payload).then((response) => {
+    //   console.log(response.data);
+    //   const myData = response.data[0];
+    //
+    //   const newInventoryItem =
+    //   new InventoryItem(myData.inventoryID, myData.locationID, newDrink, myData.current, myData.required);
+    //
+    //   vueObject.inventory.addDrink(newInventoryItem);
+    //
+    //   vueObject.resetValues();
+    //
+    // }).catch((e) => {
+    //     console.log('request failed');
+    //     console.log(e);
+    // });
 
-    alert(JSON.stringify(payload));
 
-    const vueObject = this;
-
-    axios.post('http://24.138.161.30:5000/inventory', payload).then((response) => {
-      console.log(response.data);
-      const myData = response.data[0];
-
-      const newInventoryItem =
-      new InventoryItem(myData.inventoryID, myData.locationID, newDrink, myData.current, myData.required);
-
-      vueObject.inventory.addDrink(newInventoryItem);
-
-      vueObject.resetValues();
-
-    }).catch((e) => {
-        console.log('request failed');
-        console.log(e);
-    });
   }
 
   public resetValues(): void {
