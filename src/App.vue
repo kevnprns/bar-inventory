@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">App</router-link> |
-      <router-link to="/readme">READ.ME</router-link> |
-      <router-link to="/soap">SOAP Example</router-link>
+      <router-link to="/">Manager</router-link> |
+      <router-link to="/bartender">Bartender</router-link> |
+      <router-link to="/barback">Barback</router-link> |
+      <router-link to="/readme">READ.ME</router-link>
     </div>
     <router-view v-if="dataLoaded" :myClub="this.myClub"/>
     <h3 v-else>
@@ -56,8 +57,9 @@
   })
   export default class App extends Vue {
 
-    public baseUrl: string = 'http://24.138.161.30:5000/';
-    private myClub: Club;
+    public baseUrl: string = 'http://127.0.0.1:5000/';
+    // public baseUrl: string = 'http://24.138.161.30:5000/';
+    private myClub : Club;
     private dataLoaded: boolean;
 
     constructor() {
@@ -67,7 +69,9 @@
       this.dataLoaded = false;
 
 
-      this.myClub = new Club(1, 'Loading...', [], new Inventory([]) );
+      // this.myClub = null;
+      // this.myClub = Club.Instance(1, 'Loading...', [], new Inventory([]) );
+      this.myClub = Club.Instance;
 
       let endPoint = 'locations';
       const myObject = this;
@@ -104,33 +108,32 @@
           console.log('request failed: Locations');
           console.log(e);
       });
-
-
-
       // const payload = {name: locationID, drinkID: drinkType.drinkID, current: currentStock, required: requiredStock}
-
     }
 
     public loadLocations(myLocations: LocationJSON[]): void {
       const bars: LocationJSON[] = [];
-      let club: LocationJSON = {locationID: 0, name: '', overstock: 1};
+      let clubData: LocationJSON = {locationID: 0, name: '', overstock: 1};
 
       console.log(myLocations);
 
       for (const location of myLocations) {
         if (location.overstock === 1) {
-          club = location;
+          clubData = location;
+
+          this.myClub.locationID = clubData.locationID;
+          this.myClub.name = clubData.name;
         } else {
           bars.push(location);
         }
       }
 
-      if (club.locationID === 0) {
+      if (clubData.locationID === 0) {
         console.log('No Club found');
         // create a Club
       }
 
-      this.myClub = new Club(club.locationID, club.name, [], new Inventory([]) );
+
 
       for (const bar of bars) {
         const newBar = new Bar(bar.locationID, bar.name, new Inventory([]), this.myClub.overstock);

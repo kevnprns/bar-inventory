@@ -90,7 +90,7 @@ export default class Inventory {
           (item.requiredStock + diff),
           0,
         ));
-        newCurrentStock = 0;
+        inventoryItem.currentStock = 0;
       } else {
         // can fill stock without a problem.
         transferableStock.push(new InventoryItem(
@@ -100,7 +100,7 @@ export default class Inventory {
           item.requiredStock,
           0,
         ));
-        newCurrentStock = diff;
+        inventoryItem.currentStock = diff;
       }
 
       console.log('Took Item from Overstock');
@@ -129,7 +129,8 @@ export default class Inventory {
     const payload = transferableJson;
 
     const myObject = this;
-    const base = 'http://24.138.161.30:5000/inventory/add';
+    const base = 'http://127.0.0.1:5000/inventory/add';
+    // const base = 'http://24.138.161.30:5000/inventory/add';
 
     axios.put(base, payload).then((response) => {
       console.log('Updated Add Items Stock');
@@ -191,7 +192,8 @@ export default class Inventory {
 
     const myObject = this;
 
-    axios.post('http://24.138.161.30:5000/drinks', payload).then((response) => {
+    axios.post('http://127.0.0.1:5000/drinks', payload).then((response) => {
+    // axios.post('http://24.138.161.30:5000/drinks', payload).then((response) => {
       console.log(response.data);
 
       const myData = response.data[0];
@@ -215,7 +217,8 @@ export default class Inventory {
 
     const myObject = this;
 
-    axios.post('http://24.138.161.30:5000/inventory', payload).then((response) => {
+    axios.post('http://127.0.0.1:5000/inventory', payload).then((response) => {
+    // axios.post('http://24.138.161.30:5000/inventory', payload).then((response) => {
       console.log(response.data);
       const myData = response.data[0];
 

@@ -74,7 +74,8 @@ export default class Drink {
   public deleteObject() {
     const myObject = this;
 
-    const base = 'http://24.138.161.30:5000/drinks/' + this.drinkID.toString();
+    const base = 'http://127.0.0.1:5000/drinks/' + this.drinkID.toString();
+    // const base = 'http://24.138.161.30:5000/drinks/' + this.drinkID.toString();
 
     axios.delete(base).then((response) => {
       console.log('Deleted Drink #' + myObject.drinkID.toString());

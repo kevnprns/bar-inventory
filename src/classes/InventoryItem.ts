@@ -83,7 +83,8 @@ export default class InventoryItem {
 
         const myObject = this;
 
-        const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+        const base: string = 'http://127.0.0.1:5000/inventory/' + this.inventoryID.toString();
+        // const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
 
         axios.put(base, payload).then((response) => {
           console.log('Updated Item Stock');
@@ -116,7 +117,8 @@ export default class InventoryItem {
 
       const myObject = this;
 
-      const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+      const base: string = 'http://127.0.0.1:5000/inventory/' + this.inventoryID.toString();
+      // const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
 
       axios.put(base, payload).then((response) => {
         console.log('Topped up item');
@@ -135,7 +137,8 @@ export default class InventoryItem {
   public deleteObject() {
     const myObject = this;
 
-    const base = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+    const base = 'http://127.0.0.1:5000/inventory/' + this.inventoryID.toString();
+    // const base = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
 
     axios.delete(base).then((response) => {
       console.log('Deleted inventoryItem #' + myObject.inventoryID.toString());
@@ -165,7 +168,8 @@ export default class InventoryItem {
 
       const myObject = this;
 
-      const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
+      const base: string = 'http://127.0.0.1:5000/inventory/' + this.inventoryID.toString();
+      // const base: string = 'http://24.138.161.30:5000/inventory/' + this.inventoryID.toString();
 
 
       axios.put(base, payload).then((response) => {
@@ -181,7 +185,7 @@ export default class InventoryItem {
     }
   }
 
-  
+
 
 
 }

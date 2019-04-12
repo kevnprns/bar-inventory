@@ -25,8 +25,24 @@ export default class Bar {
   get name(): string {
     return this._name;
   }
+
+  // setter is altered to perform an asyncronous update on the name
   set name(newName: string) {
-    this._name = newName;
+
+    const myObject = this;
+    const base = 'http://127.0.0.1:5000/locations/' + this.locationID.toString();
+    const payload = {name: newName, overstock: 0};
+    // const base = 'http://24.138.161.30:5000/locations/' + this.locationID.toString();
+
+    axios.put(base, payload).then((response) => { //waits for a response
+      console.log('Updated Bar Name');
+      console.log(response.data);
+      this._name = newName; // only sets the name if and once the data has been returned.
+    }).catch((e) => {
+        console.log('request failed');
+        console.log(e);
+    });
+
   }
   get inventory(): Inventory {
     return this._inventory;
@@ -64,7 +80,9 @@ export default class Bar {
     const payload = transferableJson;
 
     const myObject = this;
-    const base = 'http://24.138.161.30:5000/inventory/remove';
+    const base = 'http://127.0.0.1:5000/inventory/remove';
+
+    // const base = 'http://24.138.161.30:5000/inventory/remove';
 
     axios.put(base, payload).then((response) => {
       console.log('Updated Remove Items Stock');
@@ -82,7 +100,8 @@ export default class Bar {
     this.inventory.deleteObject();
 
     const myObject = this;
-    const base = 'http://24.138.161.30:5000/locations/' + this.locationID.toString();
+    const base = 'http://127.0.0.1:5000/locations/' + this.locationID.toString();
+    // const base = 'http://24.138.161.30:5000/locations/' + this.locationID.toString();
 
     axios.delete(base).then((response) => {
       console.log('Deleted location #' + this.locationID.toString());
